@@ -1,0 +1,119 @@
+[
+    {
+        "id": "urn:ngsi-ld:OffStreetParking:MainStreetParking",
+        "type": "OffStreetParking",
+        "name": {
+            "type": "Text",
+            "value": "Main Street Parking"
+        },
+        "description": {
+            "type": "Text",
+            "value": "Large parking garage near the city center."
+        },
+        "address": {
+            "type": "Text",
+            "value": "123 Main St, Berlin"
+        },
+        "location": {
+            "type": "geo:json",
+            "value": {
+                "type": "Point",
+                "coordinates": [13.4000, 52.5205]
+            }
+        },
+        "availableSpotNumber": {
+            "type": "Number",
+            "value": 20
+        },
+        "totalSpotNumber": {
+            "type": "Number",
+            "value": 50
+        },
+        "status": {
+            "type": "Text",
+            "value": "operational"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:00:00Z"
+        }
+    },
+    {
+        "id": "urn:ngsi-ld:OffStreetParking:WestSideParking",
+        "type": "OffStreetParking",
+        "name": {
+            "type": "Text",
+            "value": "West Side Parking"
+        },
+        "description": {
+            "type": "Text",
+            "value": "Smaller lot, often busy, near the university."
+        },
+        "address": {
+            "type": "Text",
+            "value": "456 West Blvd, Berlin"
+        },
+        "location": {
+            "type": "geo:json",
+            "value": {
+                "type": "Point",
+                "coordinates": [13.3800, 52.5200]
+            }
+        },
+        "availableSpotNumber": {
+            "type": "Number",
+            "value": 3
+        },
+        "totalSpotNumber": {
+            "type": "Number",
+            "value": 30
+        },
+        "status": {
+            "type": "Text",
+            "value": "operational"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:01:00Z"
+        }
+    },
+    {
+        "id": "urn:ngsi-ld:OffStreetParking:EmptyLot",
+        "type": "OffStreetParking",
+        "name": {
+            "type": "Text",
+            "value": "City Square Parking"
+        },
+        "description": {
+            "type": "Text",
+            "value": "Temporary parking area, currently full."
+        },
+        "address": {
+            "type": "Text",
+            "value": "789 City Sq, Berlin"
+        },
+        "location": {
+            "type": "geo:json",
+            "value": {
+                "type": "Point",
+                "coordinates": [13.4100, 52.5180]
+            }
+        },
+        "availableSpotNumber": {
+            "type": "Number",
+            "value": 0
+        },
+        "totalSpotNumber": {
+            "type": "Number",
+            "value": 15
+        },
+        "status": {
+            "type": "Text",
+            "value": "full"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:02:00Z"
+        }
+    }
+]

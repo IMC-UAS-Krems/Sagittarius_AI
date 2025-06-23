@@ -1,0 +1,122 @@
+[
+    {
+        "id": "urn:ngsi-ld:Product:LaptopXYZ_ShopA",
+        "type": "Product",
+        "name": {
+            "type": "Text",
+            "value": "Laptop XYZ"
+        },
+        "price": {
+            "type": "Number",
+            "value": 1200.00
+        },
+        "currency": {
+            "type": "Text",
+            "value": "EUR"
+        },
+        "onSale": {
+            "type": "Boolean",
+            "value": false
+        },
+        "shop": {
+            "type": "Text",
+            "value": "ElectronicsHeaven"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:03:00Z"
+        }
+    },
+    {
+        "id": "urn:ngsi-ld:Product:TShirt_ShopB",
+        "type": "Product",
+        "name": {
+            "type": "Text",
+            "value": "Cool T-Shirt"
+        },
+        "price": {
+            "type": "Number",
+            "value": 25.00
+        },
+        "currency": {
+            "type": "Text",
+            "value": "EUR"
+        },
+        "onSale": {
+            "type": "Boolean",
+            "value": true
+        },
+        "salePrice": {
+            "type": "Number",
+            "value": 15.00
+        },
+        "shop": {
+            "type": "Text",
+            "value": "FashionWorld"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:04:00Z"
+        }
+    },
+    {
+        "id": "urn:ngsi-ld:Product:EspressoMaker_ShopA",
+        "type": "Product",
+        "name": {
+            "type": "Text",
+            "value": "EspressoMaker 2000"
+        },
+        "price": {
+            "type": "Number",
+            "value": 350.00
+        },
+        "currency": {
+            "type": "Text",
+            "value": "EUR"
+        },
+        "onSale": {
+            "type": "Boolean",
+            "value": false
+        },
+        "shop": {
+            "type": "Text",
+            "value": "ElectronicsHeaven"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:05:00Z"
+        }
+    },
+    {
+        "id": "urn:ngsi-ld:Product:Sneakers_ShopB",
+        "type": "Product",
+        "name": {
+            "type": "Text",
+            "value": "Running Sneakers"
+        },
+        "price": {
+            "type": "Number",
+            "value": 80.00
+        },
+        "currency": {
+            "type": "Text",
+            "value": "EUR"
+        },
+        "onSale": {
+            "type": "Boolean",
+            "value": true
+        },
+        "salePrice": {
+            "type": "Number",
+            "value": 60.00
+        },
+        "shop": {
+            "type": "Text",
+            "value": "FashionWorld"
+        },
+        "dateModified": {
+            "type": "DateTime",
+            "value": "2025-06-09T15:06:00Z"
+        }
+    }
+]

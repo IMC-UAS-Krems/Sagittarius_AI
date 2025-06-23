@@ -1,0 +1,43 @@
+version: "3.8" # Updated to 3.8 for healthcheck features and consistency
+
+services:
+  orion:
+    # Recommended: Use fiware/orion-ld:latest for official, up-to-date image
+    image: fiware/orion-ld:latest
+    hostname: orion
+    container_name: fiware-orion
+    ports:
+      - "1026:1026"
+    # Ensure Orion connects to MongoDB by service name 'mongo'
+    command: -dbhost mongo -logLevel DEBUG
+    depends_on:
+      mongo:
+        condition: service_healthy # Wait until MongoDB is healthy
+    healthcheck: # Added healthcheck for Orion for robust startup
+      test: ["CMD", "curl", "-f", "http://orion:1026/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fiware_network
+
+  mongo:
+    # Recommended: Use mongo:4.4 for wider compatibility with Fiware components
+    image: mongo:4.4
+    hostname: mongo
+    container_name: fiware-mongo
+    ports:
+      - "27017:27017" # Expose MongoDB port (optional, for external access/tools)
+    volumes:
+      - D:/fiware-docker/fiware_data/mongo-data:/data/db # <--- THIS IS THE CHANGE
+    healthcheck: # Added healthcheck for MongoDB for robust startup
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fiware_network
+
+networks:
+  fiware_network:
+    driver: bridge
