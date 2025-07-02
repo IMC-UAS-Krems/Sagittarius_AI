@@ -147,8 +147,6 @@ class FiwareQueryTools:
         info.append(f"Product Name: {product.get('name', 'N/A')}")
         info.append(f"Description: {product.get('description', 'N/A')}")
         info.append(f"Price: {product.get('price', 'N/A')} {product.get('currency', 'USD')}")
-        info.append(f"Manufacturer: {product.get('manufacturer', 'N/A')}")
-        info.append(f"Stock Quantity: {product.get('stockQuantity', 'N/A')}")
-        info.append(f"Category: {product.get('category', 'N/A')}")
-
+        info.append(f"Shop: {product.get('shop', 'N/A')}")
+        
         return "\n".join(info)

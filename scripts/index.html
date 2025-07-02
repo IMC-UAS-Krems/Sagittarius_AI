@@ -3,23 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot</title>
-    <link rel="stylesheet" href="style.css">
+    <title>SAG AI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Marked.js CDN for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        #chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background-color: #4b5563; /* Tailwind gray-600 */
+            border-radius: 8px;
+        }
+        #chat-box::-webkit-scrollbar-track {
+            background-color: #1f2937; /* Tailwind gray-800 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        /* Basic chat message styling not covered by Tailwind in the JS */
+        .message {
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
+            max-width: 70%; /* Limit message width */
+            word-wrap: break-word; /* Ensure long words break */
+        }
+        .user-message {
+            background-color: #3b82f6; /* Blue for user */
+            color: white;
+            align-self: flex-end; /* Align to the right */
+            margin-left: auto; /* Push to the right */
+        }
+        .bot-message {
+            background-color: #374151; /* Dark gray for bot */
+            color: white;
+            align-self: flex-start; /* Align to the left */
+            margin-right: auto; /* Push to the left */
+        }
+        .status-message {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+            text-align: center;
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.3s ease-in-out; /* Smooth transition */
+        }
+        .status-message.show {
+            opacity: 1; /* Show when 'show' class is added */
+        }
+        .status-message.info {
+            background-color: #60a5fa; /* blue-400 */
+            color: white;
+        }
+        .status-message.success {
+            background-color: #34d399; /* green-400 */
+            color: white;
+        }
+        .status-message.error {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        /* Styling for Markdown elements within bot messages */
+        .bot-message strong {
+            font-weight: 700; /* Tailwind font-bold */
+            color: white;
+        }
+        .bot-message em {
+            font-style: italic;
+            color: white;
+        }
+        .bot-message code {
+            background-color: #1f2937; /* Darker gray for code blocks/inline code */
+            padding: 0.2em 0.4em;
+            border-radius: 0.3em;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; /* Monospace font for code */
+            font-size: 0.875em; /* Slightly smaller font for code */
+            color: white;
+        }
+        .bot-message pre {
+            background-color: #111827; /* Even darker for preformatted blocks */
+            padding: 1em;
+            border-radius: 0.5em;
+            overflow-x: auto; /* Enable horizontal scrolling for long code lines */
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            color: white;
+        }
+    </style>
 </head>
-<body>
-    <div class="chat-container">
-        <div class="file-upload-section">
-            <input type="file" id="csvFileInput" accept=".csv, .xls, .xlsx">
-            <button id="uploadButton">Upload File</button>
-            <span id="uploadStatus" class="status-message"></span>
-        </div>
-        <div class="chat-box" id="chat-box">
+<body class="flex h-screen bg-gray-950 text-gray-200">
+    <!-- Main content area -->
+    <div class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="flex items-center justify-between p-4 bg-gray-900 border-b border-gray-800">
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold flex items-center">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-gem mr-2 text-blue-400"
+                    >
+                        <path d="M6 3v18l6-4 6 4V3l-6 4Z" />
+                    </svg>
+                    Sagittaruis AI
+                </h1>
             </div>
-        <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="send-button">Send</button>
-        </div>
+        </header>
+
+        <!-- Main content: Chat Box and Input Area -->
+        <main class="flex-1 flex flex-col items-center justify-between p-4 pb-0 overflow-hidden w-full">
+            <!-- Chat Box -->
+            <div id="chat-box" class="flex flex-col w-full px-4 overflow-y-auto flex-grow pb-4 min-h-0">
+            </div>
+
+            <!-- Input and Upload Section -->
+            <div class="w-full px-4 py-4">
+                <div class="relative bg-gray-800 rounded-2xl shadow-xl border border-gray-700 flex items-center">
+                    <input type="file" id="csvFileInput" class="hidden" accept=".csv, .xls, .xlsx" />
+                    <label for="csvFileInput" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer p-1">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-plus"
+                        >
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                    </label>
+                    <textarea
+                        id="user-input"
+                        class="w-full p-4 pl-12 pr-12 text-lg bg-transparent border-none focus:outline-none resize-none placeholder-gray-500 rounded-2xl min-h-[4rem] overflow-hidden"
+                        placeholder="Type your message..."
+                        rows="1"
+                    ></textarea>
+                    <button id="send-button" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer p-1">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M15 15l6-6"/></svg>
+                    </button>
+                    <button id="uploadButton" class="hidden"></button>
+                </div>
+                <div id="uploadStatus" class="status-message"></div>
+            </div>
+        </main>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Start of provided JavaScript from script.js
+document.addEventListener('DOMContentLoaded', () => {
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const csvFileInput = document.getElementById('csvFileInput');
+    const uploadButton = document.getElementById('uploadButton');
+    const uploadStatus = document.getElementById('uploadStatus');
+
+    let lastUploadedFileName = null;
+
+    // Function to add a message to the chat box
+    function addMessage(message, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', `${sender}-message`);
+
+        // If it's a bot message, parse Markdown; otherwise, set text content directly
+        if (sender === 'bot') {
+            messageDiv.innerHTML = marked.parse(message); // Use marked.parse for Markdown rendering
+        } else {
+            messageDiv.textContent = message;
+        }
+        
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Function to display upload status
+    function setUploadStatus(message, type = 'info') {
+        uploadStatus.textContent = message;
+        uploadStatus.className = `status-message ${type} show`;
+        setTimeout(() => {
+            uploadStatus.classList.remove('show');
+            setTimeout(() => {
+                uploadStatus.textContent = '';
+                uploadStatus.className = 'status-message';
+            }, 300);
+        }, 5000);
+    }
+
+    // Function to send message to backend
+    async function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') return;
+
+        addMessage(message, 'user');
+        userInput.value = '';
+        userInput.style.height = 'auto';
+        userInput.style.height = userInput.scrollHeight + 'px';
+
+        const loadingMessageDiv = document.createElement('div');
+        loadingMessageDiv.classList.add('message', 'bot-message');
+        loadingMessageDiv.textContent = '...typing...';
+        chatBox.appendChild(loadingMessageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const payload = {
+                message: message,
+                last_uploaded_file: lastUploadedFileName
+            };
+
+            const response = await fetch('http://127.0.0.1:5000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (chatBox.contains(loadingMessageDiv)) {
+                chatBox.removeChild(loadingMessageDiv);
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.response || `HTTP error! status: ${response.status}`;
+                console.error('Backend responded with an error:', errorMessage, response);
+                addMessage(`Bot Error: ${errorMessage}`, 'bot');
+                return;
+            }
+
+            const data = await response.json();
+            addMessage(data.response, 'bot');
+        } catch (error) {
+            if (chatBox.contains(loadingMessageDiv)) {
+                chatBox.removeChild(loadingMessageDiv);
+            }
+            console.error('Network or parsing error:', error);
+            addMessage('Oops! Could not connect to the chatbot server. Please check if the backend is running.', 'bot');
+        }
+    }
+
+    // Function to handle file upload
+    async function uploadFile() {
+        const file = csvFileInput.files[0];
+        if (!file) {
+            setUploadStatus('Please select a file first.', 'error');
+            return;
+        }
+
+        setUploadStatus('Uploading...', 'info');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            setUploadStatus(data.message, 'success');
+            lastUploadedFileName = data.filename;
+            addMessage(`File "${data.filename}" uploaded successfully to 'mangodata' folder. You can now refer to it in your queries.`, 'bot');
+            console.log('File uploaded:', data.filename);
+        } catch (error) {
+            setUploadStatus(`Upload failed: ${error.message}`, 'error');
+            console.error('Upload error:', error);
+        }
+    }
+
+    // Event Listeners
+    sendButton.addEventListener('click', sendMessage);
+
+    userInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevents newline/tab
+            sendMessage();
+        }
+    });
+
+    csvFileInput.addEventListener('change', uploadFile);
+
+    // Dynamic textarea height adjustment
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = userInput.scrollHeight + 'px';
+    });
+
+    // Initial bot greeting
+    addMessage("Hello! I'm your AI Chatbot. You can upload a file or ask me to generate a dashboard template or summarize a data file.", 'bot');
+});
+    </script>
 </body>
 </html>
