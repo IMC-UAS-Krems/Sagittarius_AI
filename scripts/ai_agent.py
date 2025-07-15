@@ -7,6 +7,7 @@ from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langchain_core.runnables import RunnableBranch, RunnableLambda
 
 # --- Import Tool Classes from separate files ---
 from data_tools import DataAnalysisTools
@@ -231,11 +232,11 @@ if chat_llm:
     try:
         template_agent = create_tool_calling_agent(llm=chat_llm, tools=template_tools, prompt=template_prompt)
         summary_agent = create_tool_calling_agent(llm=chat_llm, tools=summary_tool, prompt=summary_prompt)
-        fiware_query_agent = create_tool_calling_agent(llm=chat_llm, tools=fiware_query_tools, prompt=fiware_query_prompt) # <--- NEW AGENT
+        fiware_query_agent = create_tool_calling_agent(llm=chat_llm, tools=fiware_query_tools, prompt=fiware_query_prompt)
 
         template_executor = AgentExecutor(agent=template_agent, tools=template_tools, verbose=True, memory=template_memory, handle_parsing_errors=True)
         summary_executor = AgentExecutor(agent=summary_agent, tools=summary_tool, verbose=True, memory=summary_memory, handle_parsing_errors=True)
-        fiware_query_executor = AgentExecutor(agent=fiware_query_agent, tools=fiware_query_tools, verbose=True, memory=fiware_query_memory, handle_parsing_errors=True) # <--- NEW EXECUTOR
+        fiware_query_executor = AgentExecutor(agent=fiware_query_agent, tools=fiware_query_tools, verbose=True, memory=fiware_query_memory, handle_parsing_errors=True)
         print("Langchain agents and executors initialized successfully.")
     except Exception as e:
         print(f"ERROR: Could not create Langchain agents/executors: {e}", file=sys.stderr)
@@ -244,11 +245,56 @@ if chat_llm:
 # --- Wrapper class for the Flask app to interact with ---
 class AIAgent:
     def __init__(self):
-        if not chat_llm or not template_executor or not summary_executor or not fiware_query_executor: # <--- Update check
+        if not chat_llm or not template_executor or not summary_executor or not fiware_query_executor:
             print("WARNING: Langchain agents not fully initialized. Chatbot functionality may be limited.", file=sys.stderr)
             self.initialized = False
         else:
             self.initialized = True
+            # Define the RunnableBranch for routing
+            self.router = RunnableBranch(
+                (lambda x: "summary" in x["input"].lower() or "extract summary" in x["input"].lower(),
+                 RunnableLambda(self._run_summary_agent)),
+                (lambda x: "parking" in x["input"].lower() or "product" in x["input"].lower() or "sale" in x["input"].lower(),
+                 RunnableLambda(self._run_fiware_query_agent)),
+                RunnableLambda(self._run_template_agent)
+            )
+
+    def _run_summary_agent(self, data):
+        print("\n--- Routing to Summary Agent ---")
+        try:
+            response = summary_executor.invoke({"input": data["input"]})
+            print("\nFinal Summary:")
+            print(response["output"])
+            return response["output"]
+        except Exception as e:
+            print(f"Error running the summary agent: {e}", file=sys.stderr)
+            return f"Error: {e}"
+
+    def _run_fiware_query_agent(self, data):
+        print("\n--- Routing to Fiware Query Agent ---")
+        llm_input = data["input"]
+        if "test parking" in llm_input.lower():
+            llm_input = f"{llm_input} (test_latitude:48.2082, test_longitude:16.3738)"
+            print(f"Augmented LLM input for test parking: {llm_input}")
+        try:
+            response = fiware_query_executor.invoke({"input": llm_input})
+            print("\nFiware Query Response:")
+            print(response["output"])
+            return response["output"]
+        except Exception as e:
+            print(f"Error running the Fiware Query agent: {e}", file=sys.stderr)
+            return f"Error: {e}"
+
+    def _run_template_agent(self, data):
+        print("\n--- Routing to Template Generation Agent ---")
+        try:
+            response = template_executor.invoke({"input": data["input"]})
+            print("\nFinal Generated Template/General Response:")
+            print(response["output"])
+            return response["output"]
+        except Exception as e:
+            print(f"Error running the template agent: {e}", file=sys.stderr)
+            return f"Error: {e}"
 
     def process_message(self, user_message: str, file_to_use: str = None) -> str:
         if not self.initialized:
@@ -260,45 +306,9 @@ class AIAgent:
         if file_to_use:
             llm_input = f"{user_message}\n\n(Note to AI: The user is referring to the file '{file_to_use}'. Please use this file for any data analysis or template generation tasks if relevant.)"
             print(f"Augmented LLM input with explicit file hint: {llm_input}")
-
-        # --- NEW: Route the query based on keywords to the correct agent ---
-        user_message_lower = user_message.lower()
-
-        if "summary" in user_message_lower or "extract summary" in user_message_lower:
-            print("\n--- Routing to Summary Agent ---")
-            try:
-                response = summary_executor.invoke({"input": llm_input})
-                print("\nFinal Summary:")
-                print(response["output"])
-                return response["output"]
-            except Exception as e:
-                print(f"Error running the summary agent: {e}", file=sys.stderr)
-                return f"Error: {e}"
-        elif "parking" in user_message_lower or "product" in user_message_lower or "sale" in user_message_lower:
-            print("\n--- Routing to Fiware Query Agent ---")
-            # For testing the hardcoded location, you can add a specific condition here
-            if "test parking" in user_message_lower:
-                # Append fixed coordinates for testing if "test parking" is in the message
-                llm_input = f"{user_message} (test_latitude:48.2082, test_longitude:16.3738)"
-                print(f"Augmented LLM input for test parking: {llm_input}")
-            try:
-                response = fiware_query_executor.invoke({"input": llm_input})
-                print("\nFiware Query Response:")
-                print(response["output"])
-                return response["output"]
-            except Exception as e:
-                print(f"Error running the Fiware Query agent: {e}", file=sys.stderr)
-                return f"Error: {e}"
-        else:
-            print("\n--- Routing to Template Generation Agent ---")
-            try:
-                response = template_executor.invoke({"input": llm_input})
-                print("\nFinal Generated Template/General Response:")
-                print(response["output"])
-                return response["output"]
-            except Exception as e:
-                print(f"Error running the template agent: {e}", file=sys.stderr)
-                return f"Error: {e}"
+        
+        # Invoke the router with the augmented input
+        return self.router.invoke({"input": llm_input})
 
 # --- Example Usage (for direct testing of ai_agent.py) ---
 if __name__ == "__main__":

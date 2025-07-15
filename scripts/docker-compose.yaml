@@ -37,6 +37,25 @@ services:
       retries: 5
     networks:
       - fiware_network
+  grafana:
+    image: grafana/grafana:latest
+    hostname: grafana
+    container_name: fiware-grafana
+    ports:
+      - "3000:3000" # Grafana default port
+    volumes:
+      # Persist Grafana data (dashboards, datasources, etc.)
+      - D:/fiware-docker/grafana_data:/var/lib/grafana
+    environment:
+      # Configure Grafana admin user (change for production)
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    depends_on:
+      orion:
+        condition: service_healthy # Ensure Orion is up before Grafana starts
+    networks:
+      - fiware_network
 
 networks:
   fiware_network:
