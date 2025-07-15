@@ -78,6 +78,11 @@ The Flask app will start, and you should see output indicating that the AI Agent
 Open index.html in your web browser. You should see the chat interface.
 Usage
 Upload a File: Use the "+" button to upload a CSV, XLS, or XLSX file. The file will be saved to the mangodata folder, and the chatbot will acknowledge the upload.
+
 Summarize Data: After uploading a file, you can ask the chatbot to summarize it. For example: "summarize my_data.csv".
+
 Generate Dashboard Template: Request a dashboard template. You can refer to the uploaded file, e.g., "generate a pie chart template for sales_data.xlsx showing sales by region".
+
 Query FIWARE: Ask questions related to parking spots or products if you have populated your FIWARE instance. For example: "Find the closest free parking spot near latitude 34.733333, longitude 10.766667". or "What is the info about product 'Mango Fresh'?"
+
+NOTE: in the `docker-compose.yaml` you should find this line `- D:/fiware-docker/fiware_data/mongo-data:/data/db # <--- THIS IS THE CHANGE`, this line is where orion save it's data, DO CHANGE IT TO YOUR SPECIFIC NEEDS!
