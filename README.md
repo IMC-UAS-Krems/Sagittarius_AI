@@ -1,7 +1,7 @@
-## SAG AI Chatbot
+# SAG AI Chatbot
 This project implements an AI Chatbot capable of generating dashboard templates, summarizing data files, and querying a FIWARE instance. It leverages Langchain for multi-agent orchestration, Flask for the backend API, and a simple HTML/JavaScript frontend for interaction.
 
-# Features
+## Features
 * Dashboard Template Generation: Generate dashboard templates based on user requests, utilizing data column information from uploaded files.
 
 * Data Summarization: Summarize CSV or Excel data files, providing key insights and statistics.
@@ -12,7 +12,7 @@ This project implements an AI Chatbot capable of generating dashboard templates,
 
 * Containerized Environment: Run the backend, frontend, FIWARE Orion, and MongoDB using Docker Compose for easy setup.
 
-# Technologies Used
+## Technologies Used
 Backend: Python (Flask, Langchain, Pandas, Requests)
 
 AI Model: OpenAI GPT-4o (via Langchain)
@@ -51,52 +51,33 @@ Python 3.8+
 An OpenAI API Key.
 
 1. Clone the Repository
-Bash
 `git clone <repository_url>
 cd <repository_directory>`
 2. Set Up Environment Variables
 Create a .env file in the root directory of the project and add your OpenAI API key:
-
 `OPENAI_API_KEY="your_openai_api_key_here"`
 If your FIWARE Orion instance is not at the default http://localhost:1026, you can also specify:
-
-ORION_URL="http://your_orion_ip:1026"
+`ORION_URL="http://your_orion_ip:1026"
 FIWARE_SERVICE="smart_data_service"
-FIWARE_SERVICE_PATH="/data"
+FIWARE_SERVICE_PATH="/data"`
 3. Run Docker Compose (FIWARE and MongoDB)
 Navigate to the directory containing docker-compose.yaml and start the services:
-
-Bash
-
 `docker-compose up -d`
 This will spin up orion (FIWARE Orion Context Broker) and mongo (MongoDB) containers. Ensure they are running and healthy before proceeding. You can check their status with docker-compose ps.
-
 4. Install Python Dependencies
 It's recommended to use a virtual environment:
-
-Bash
 `docker-compose up -d`
 `source venv/bin/activate # On Windows, use venv\Scripts\activate`
 5. Populate FIWARE (Optional but Recommended)
 You can use the populate_fiware.py script to add sample data to your Orion instance. You will be prompted to provide paths to parking and product data files (e.g., parking_data.json, product_data.json - these are not provided in the uploaded files but are assumed to exist for the script).
-
-Bash
-
 `python populate_fiware.py`
 6. Run the Flask Application
-Bash
-
 `python app.py`
 The Flask app will start, and you should see output indicating that the AI Agent is initialized and the upload folder exists.
-
 7. Open the Frontend
 Open index.html in your web browser. You should see the chat interface.
-
 Usage
 Upload a File: Use the "+" button to upload a CSV, XLS, or XLSX file. The file will be saved to the mangodata folder, and the chatbot will acknowledge the upload.
-
 Summarize Data: After uploading a file, you can ask the chatbot to summarize it. For example: "summarize my_data.csv".
-
 Generate Dashboard Template: Request a dashboard template. You can refer to the uploaded file, e.g., "generate a pie chart template for sales_data.xlsx showing sales by region".
-
 Query FIWARE: Ask questions related to parking spots or products if you have populated your FIWARE instance. For example: "Find the closest free parking spot near latitude 34.733333, longitude 10.766667". or "What is the info about product 'Mango Fresh'?"
