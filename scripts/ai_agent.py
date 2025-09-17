@@ -8,6 +8,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableBranch, RunnableLambda
+from langchain_core.output_parsers import StrOutputParser
 
 # --- Import Tool Classes from separate files ---
 from data_tools import DataAnalysisTools
@@ -23,11 +24,18 @@ try:
         model_name="gpt-4o",
         temperature=0.1,
     )
+    
+    # Router LLM for native routing
+    router_llm = ChatOpenAI(
+        model_name="gpt-4o",
+        temperature=0.0,
+    )
     print("ChatOpenAI initialized successfully.")
 except Exception as e:
     print(f"ERROR: Could not initialize ChatOpenAI: {e}", file=sys.stderr)
     print("Please ensure the OPENAI_API_KEY environment variable is set correctly.", file=sys.stderr)
     chat_llm = None # Set to None if initialization fails
+    router_llm = None
 
 # Instantiate tool classes
 data_analysis_tools_instance = DataAnalysisTools()
@@ -55,6 +63,22 @@ fiware_query_tools = [
     fiware_query_tools_instance.get_parking_spots,
     fiware_query_tools_instance.get_product_info
 ]
+
+# General QA tools (for web search and general knowledge)
+general_qa_tools = []  # Can be expanded with web search tools if available
+
+# --- Router Prompt Template ---
+router_prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a routing classifier. Analyze the user query and return ONLY one of these exact words based on the primary intent:
+
+SUMMARY - for data summarization, insights extraction, overview requests, key findings, extract summary
+FIWARE - for parking queries, product information, Fiware context broker, sale inquiries  
+TEMPLATE - for dashboard template generation, creating dashboards, generating visualization templates
+GENERAL - for general questions, casual conversation, knowledge queries, current events, explanations, definitions, how-to questions, news, weather, or any other non-specialized queries
+
+Respond with ONLY the classification word, nothing else."""),
+    ("human", "{input}"),
+])
 
 # Define prompt templates for each agent (MODIFIED FOR AUTOMATIC FILE USAGE)
 template_prompt = ChatPromptTemplate.from_messages([
@@ -216,85 +240,217 @@ fiware_query_prompt = ChatPromptTemplate.from_messages([
     ("placeholder", "{agent_scratchpad}")
 ])
 
+general_qa_prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are "KnowledgeExpert", a versatile AI assistant capable of answering a wide range of questions on any topic using your extensive knowledge base and reasoning capabilities.
+
+    Your primary role is to:
+    - Answer general knowledge questions across all fields (science, history, technology, culture, etc.)
+    - Provide explanations and definitions for complex concepts
+    - Engage in thoughtful conversation and discussions
+    - Help with problem-solving and decision-making
+    - Offer advice and guidance when appropriate
+    - Discuss current events and trending topics (noting your knowledge limitations)
+
+    **Response Guidelines:**
+    - Be informative, accurate, and helpful
+    - Provide context and background when explaining concepts
+    - Acknowledge when you're uncertain or when information might be outdated
+    - Use clear, accessible language appropriate to the user's apparent level
+    - For recent events or rapidly changing topics, mention that your knowledge has limitations
+    - Be engaging and conversational while maintaining professionalism
+    - Provide practical examples when helpful
+
+    **Knowledge Scope:**
+    - Draw from your extensive training across multiple domains
+    - Provide balanced perspectives on controversial topics
+    - Cite general knowledge rather than specific sources
+    - Admit limitations honestly when you encounter them
+
+    You do not have access to real-time data, web search, or specialized tools for data analysis. Focus on providing thoughtful, well-reasoned responses based on your training."""),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}")
+])
+
 
 # Initialize memory for each agent
 template_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 summary_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 fiware_query_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+general_qa_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 
 # Create agents and executors only if LLM was initialized successfully
 template_executor = None
 summary_executor = None
 fiware_query_executor = None
+general_qa_executor = None
 
 if chat_llm:
     try:
         template_agent = create_tool_calling_agent(llm=chat_llm, tools=template_tools, prompt=template_prompt)
         summary_agent = create_tool_calling_agent(llm=chat_llm, tools=summary_tool, prompt=summary_prompt)
         fiware_query_agent = create_tool_calling_agent(llm=chat_llm, tools=fiware_query_tools, prompt=fiware_query_prompt)
+        general_qa_agent = create_tool_calling_agent(llm=chat_llm, tools=general_qa_tools, prompt=general_qa_prompt)
 
         template_executor = AgentExecutor(agent=template_agent, tools=template_tools, verbose=True, memory=template_memory, handle_parsing_errors=True)
         summary_executor = AgentExecutor(agent=summary_agent, tools=summary_tool, verbose=True, memory=summary_memory, handle_parsing_errors=True)
         fiware_query_executor = AgentExecutor(agent=fiware_query_agent, tools=fiware_query_tools, verbose=True, memory=fiware_query_memory, handle_parsing_errors=True)
+        general_qa_executor = AgentExecutor(agent=general_qa_agent, tools=general_qa_tools, verbose=True, memory=general_qa_memory, handle_parsing_errors=True)
         print("Langchain agents and executors initialized successfully.")
     except Exception as e:
         print(f"ERROR: Could not create Langchain agents/executors: {e}", file=sys.stderr)
         print("This might be due to an issue with LLM initialization or tool/prompt definitions.", file=sys.stderr)
 
+# --- Native LangChain RouteChain Implementation ---
+
+# Create router chain
+router_chain = router_prompt | router_llm | StrOutputParser()
+
+# Agent execution functions
+def execute_summary_agent(data):
+    print("\n--- Routing to Summary Agent ---")
+    try:
+        response = summary_executor.invoke({"input": data["input"]})
+        print("\nFinal Summary:")
+        print(response["output"])
+        return response["output"]
+    except Exception as e:
+        print(f"Error running the summary agent: {e}", file=sys.stderr)
+        return f"Error: {e}"
+
+def execute_fiware_agent(data):
+    print("\n--- Routing to Fiware Query Agent ---")
+    llm_input = data["input"]
+    if "test parking" in llm_input.lower():
+        llm_input = f"{llm_input} (test_latitude:48.2082, test_longitude:16.3738)"
+        print(f"Augmented LLM input for test parking: {llm_input}")
+    try:
+        response = fiware_query_executor.invoke({"input": llm_input})
+        print("\nFiware Query Response:")
+        print(response["output"])
+        return response["output"]
+    except Exception as e:
+        print(f"Error running the Fiware Query agent: {e}", file=sys.stderr)
+        return f"Error: {e}"
+
+def execute_template_agent(data):
+    print("\n--- Routing to Template Generation Agent ---")
+    try:
+        response = template_executor.invoke({"input": data["input"]})
+        print("\nFinal Generated Template/General Response:")
+        print(response["output"])
+        return response["output"]
+    except Exception as e:
+        print(f"Error running the template agent: {e}", file=sys.stderr)
+        return f"Error: {e}"
+
+def execute_general_qa_agent(data):
+    print("\n--- Routing to General Q&A Agent ---")
+    try:
+        response = general_qa_executor.invoke({"input": data["input"]})
+        print("\nGeneral Q&A Response:")
+        print(response["output"])
+        return response["output"]
+    except Exception as e:
+        print(f"Error running the General Q&A agent: {e}", file=sys.stderr)
+        return f"Error: {e}"
+
+# Create the native routing chain
+def create_native_route_chain():
+    """Create native LangChain routing chain."""
+    def route_to_agent(data):
+        query = data["input"]
+        classification = router_chain.invoke({"input": query}).strip().upper()
+        
+        print(f"\nRouter classified query as: {classification}")
+        
+        # Route to appropriate agent
+        if classification == "SUMMARY":
+            return execute_summary_agent(data)
+        elif classification == "FIWARE":
+            return execute_fiware_agent(data)
+        elif classification == "TEMPLATE":
+            return execute_template_agent(data)
+        elif classification == "GENERAL":
+            return execute_general_qa_agent(data)
+        else:  # Default fallback to GENERAL for unrecognized classifications
+            print("Unrecognized classification, defaulting to General Q&A")
+            return execute_general_qa_agent(data)
+    
+    return RunnableLambda(route_to_agent)
+
+# Initialize the native route chain
+native_route_chain = None
+if router_llm and chat_llm:
+    native_route_chain = create_native_route_chain()
+    print("Native LangChain RouteChain initialized successfully.")
+
 # --- Wrapper class for the Flask app to interact with ---
 class AIAgent:
     def __init__(self):
-        if not chat_llm or not template_executor or not summary_executor or not fiware_query_executor:
+        if not chat_llm or not router_llm or not template_executor or not summary_executor or not fiware_query_executor or not general_qa_executor or not native_route_chain:
             print("WARNING: Langchain agents not fully initialized. Chatbot functionality may be limited.", file=sys.stderr)
             self.initialized = False
         else:
             self.initialized = True
-            # Define the RunnableBranch for routing
-            self.router = RunnableBranch(
-                (lambda x: "summary" in x["input"].lower() or "extract summary" in x["input"].lower(),
-                 RunnableLambda(self._run_summary_agent)),
-                (lambda x: "parking" in x["input"].lower() or "product" in x["input"].lower() or "sale" in x["input"].lower(),
-                 RunnableLambda(self._run_fiware_query_agent)),
-                RunnableLambda(self._run_template_agent)
-            )
-
-    def _run_summary_agent(self, data):
-        print("\n--- Routing to Summary Agent ---")
-        try:
-            response = summary_executor.invoke({"input": data["input"]})
-            print("\nFinal Summary:")
-            print(response["output"])
-            return response["output"]
-        except Exception as e:
-            print(f"Error running the summary agent: {e}", file=sys.stderr)
-            return f"Error: {e}"
-
-    def _run_fiware_query_agent(self, data):
-        print("\n--- Routing to Fiware Query Agent ---")
-        llm_input = data["input"]
-        if "test parking" in llm_input.lower():
-            llm_input = f"{llm_input} (test_latitude:48.2082, test_longitude:16.3738)"
-            print(f"Augmented LLM input for test parking: {llm_input}")
-        try:
-            response = fiware_query_executor.invoke({"input": llm_input})
-            print("\nFiware Query Response:")
-            print(response["output"])
-            return response["output"]
-        except Exception as e:
-            print(f"Error running the Fiware Query agent: {e}", file=sys.stderr)
-            return f"Error: {e}"
-
-    def _run_template_agent(self, data):
-        print("\n--- Routing to Template Generation Agent ---")
-        try:
-            response = template_executor.invoke({"input": data["input"]})
-            print("\nFinal Generated Template/General Response:")
-            print(response["output"])
-            return response["output"]
-        except Exception as e:
-            print(f"Error running the template agent: {e}", file=sys.stderr)
-            return f"Error: {e}"
+            self.router = native_route_chain
+            
+            # Initialize centralized chat history
+            self.chat_history = []
+            self.max_history_length = 50  # Keep last 50 exchanges
+    
+    def add_to_chat_history(self, user_message: str, bot_response: str, agent_used: str = None, file_used: str = None):
+        """Add conversation exchange to centralized chat history."""
+        import datetime
+        
+        exchange = {
+            "timestamp": datetime.datetime.now().isoformat(),
+            "user_message": user_message,
+            "bot_response": bot_response,
+            "agent_used": agent_used,
+            "file_used": file_used
+        }
+        
+        self.chat_history.append(exchange)
+        
+        # Keep history within limits
+        if len(self.chat_history) > self.max_history_length:
+            self.chat_history = self.chat_history[-self.max_history_length:]
+    
+    def get_chat_history(self, last_n: int = None):
+        """Get chat history, optionally limited to last n exchanges."""
+        if last_n:
+            return self.chat_history[-last_n:]
+        return self.chat_history
+    
+    def get_chat_history_summary(self):
+        """Get a summary of chat history statistics."""
+        if not self.chat_history:
+            return {"total_exchanges": 0, "agents_used": {}, "files_used": set()}
+        
+        agents_used = {}
+        files_used = set()
+        
+        for exchange in self.chat_history:
+            agent = exchange.get("agent_used", "unknown")
+            if agent in agents_used:
+                agents_used[agent] += 1
+            else:
+                agents_used[agent] = 1
+            
+            if exchange.get("file_used"):
+                files_used.add(exchange["file_used"])
+        
+        return {
+            "total_exchanges": len(self.chat_history),
+            "agents_used": agents_used,
+            "files_used": list(files_used)
+        }
+    
+    def clear_chat_history(self):
+        """Clear the centralized chat history."""
+        self.chat_history = []
+        print("Centralized chat history cleared.")
 
     def process_message(self, user_message: str, file_to_use: str = None) -> str:
         if not self.initialized:
@@ -307,8 +463,25 @@ class AIAgent:
             llm_input = f"{user_message}\n\n(Note to AI: The user is referring to the file '{file_to_use}'. Please use this file for any data analysis or template generation tasks if relevant.)"
             print(f"Augmented LLM input with explicit file hint: {llm_input}")
         
-        # Invoke the router with the augmented input
-        return self.router.invoke({"input": llm_input})
+        # Invoke the native routing chain and get response
+        bot_response = self.router.invoke({"input": llm_input})
+        
+        # Determine which agent was used based on the classification
+        try:
+            classification = router_chain.invoke({"input": llm_input}).strip().upper()
+            agent_used = classification.lower()
+        except:
+            agent_used = "unknown"
+        
+        # Add to centralized chat history
+        self.add_to_chat_history(
+            user_message=user_message,
+            bot_response=bot_response,
+            agent_used=agent_used,
+            file_used=file_to_use
+        )
+        
+        return bot_response
 
 # --- Example Usage (for direct testing of ai_agent.py) ---
 if __name__ == "__main__":
@@ -321,16 +494,78 @@ if __name__ == "__main__":
         print("AIAgent could not be fully initialized. Exiting example usage.")
         sys.exit(1)
 
+    print("\nCommands:")
+    print("- Type your question normally")
+    print("- Type 'history' to see chat history")
+    print("- Type 'history 5' to see last 5 exchanges")
+    print("- Type 'summary' to see chat statistics")
+    print("- Type 'clear' to clear chat history")
+    print("- Type 'exit', 'quit', or 'bye' to exit\n")
+
     while True:
         user_input = input("You: ")
+        
         if user_input.lower() in ["exit", "quit", "bye"]:
+            print("\n--- Final Chat Summary ---")
+            summary = agent.get_chat_history_summary()
+            print(f"Total exchanges: {summary['total_exchanges']}")
+            print(f"Agents used: {summary['agents_used']}")
+            print(f"Files used: {summary['files_used']}")
             print("Goodbye!")
             break
+        elif user_input.lower() == "history":
+            print("\n--- Chat History ---")
+            history = agent.get_chat_history()
+            if not history:
+                print("No chat history yet.")
+            else:
+                for i, exchange in enumerate(history, 1):
+                    print(f"\n{i}. [{exchange['timestamp']}] Agent: {exchange.get('agent_used', 'unknown')}")
+                    if exchange.get('file_used'):
+                        print(f"   File used: {exchange['file_used']}")
+                    print(f"   You: {exchange['user_message'][:100]}...")
+                    print(f"   Bot: {exchange['bot_response'][:100]}...")
+            continue
+        elif user_input.lower().startswith("history "):
+            try:
+                n = int(user_input.split()[1])
+                print(f"\n--- Last {n} Chat Exchanges ---")
+                history = agent.get_chat_history(last_n=n)
+                if not history:
+                    print("No chat history yet.")
+                else:
+                    for i, exchange in enumerate(history, 1):
+                        print(f"\n{i}. [{exchange['timestamp']}] Agent: {exchange.get('agent_used', 'unknown')}")
+                        if exchange.get('file_used'):
+                            print(f"   File used: {exchange['file_used']}")
+                        print(f"   You: {exchange['user_message']}")
+                        print(f"   Bot: {exchange['bot_response'][:200]}...")
+            except:
+                print("Invalid format. Use 'history 5' to see last 5 exchanges.")
+            continue
+        elif user_input.lower() == "summary":
+            print("\n--- Chat History Summary ---")
+            summary = agent.get_chat_history_summary()
+            print(f"Total exchanges: {summary['total_exchanges']}")
+            print(f"Agents used: {summary['agents_used']}")
+            print(f"Files used: {summary['files_used']}")
+            continue
+        elif user_input.lower() == "clear":
+            agent.clear_chat_history()
+            print("Chat history cleared!")
+            continue
+        
         response = agent.process_message(user_input)
         print(f"Bot: {response}")
-        print("\n--- Conversation History (Template Agent) ---")
-        print(template_memory.load_memory_variables({})["chat_history"])
-        print("\n--- Conversation History (Summary Agent) ---")
-        print(summary_memory.load_memory_variables({})["chat_history"])
-        print("\n--- Conversation History (Fiware Query Agent) ---") 
-        print(fiware_query_memory.load_memory_variables({})["chat_history"])
+        
+        # Show brief history info
+        summary = agent.get_chat_history_summary()
+        print(f"\n(Total exchanges: {summary['total_exchanges']})")
+        
+        # Optional: Show individual agent memories
+        # print("\n--- Conversation History (Template Agent) ---")
+        # print(template_memory.load_memory_variables({})["chat_history"])
+        # print("\n--- Conversation History (Summary Agent) ---")
+        # print(summary_memory.load_memory_variables({})["chat_history"])
+        # print("\n--- Conversation History (Fiware Query Agent) ---") 
+        # print(fiware_query_memory.load_memory_variables({})["chat_history"])
