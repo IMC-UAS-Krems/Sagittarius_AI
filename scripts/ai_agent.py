@@ -14,6 +14,7 @@ from langchain_core.output_parsers import StrOutputParser
 from data_tools import DataAnalysisTools
 from dashboard_tools import DashboardGenerationTools
 from fiware_query_tool import FiwareQueryTools
+from grafana_test_v2 import SmartGrafanaDashboardTool
 
 # --- Langchain Multi-Agent Implementation with Memory ---
 
@@ -41,6 +42,8 @@ except Exception as e:
 data_analysis_tools_instance = DataAnalysisTools()
 dashboard_gen_tools_instance = DashboardGenerationTools()
 fiware_query_tools_instance = FiwareQueryTools()
+grafana_tools_instance = SmartGrafanaDashboardTool()
+
 
 # Define tools for each agent by collecting methods decorated with @tool
 template_tools = [
@@ -53,8 +56,11 @@ template_tools = [
     dashboard_gen_tools_instance.xy_chart,
     dashboard_gen_tools_instance.host,
     dashboard_gen_tools_instance.first,
-    data_analysis_tools_instance.extract_column_names # This tool is also used by the template agent
+    data_analysis_tools_instance.extract_column_names,
+    SmartGrafanaDashboardTool.create_smart_dashboard,
+    SmartGrafanaDashboardTool.discover_and_list_data
 ]
+
 summary_tool = [
     data_analysis_tools_instance.extract_summary # Only the summary tool is used by the summary agent
 ]
@@ -397,7 +403,8 @@ class AIAgent:
             
             # Initialize centralized chat history
             self.chat_history = []
-            self.max_history_length = 50  # Keep last 50 exchanges
+            self.max_history_length = 50
+            self.last_uploaded_file = None
     
     def add_to_chat_history(self, user_message: str, bot_response: str, agent_used: str = None, file_used: str = None):
         """Add conversation exchange to centralized chat history."""
@@ -458,10 +465,21 @@ class AIAgent:
 
         llm_input = user_message
 
-        # If an explicit file_to_use is provided, add a strong hint to the LLM.
+        # Reset file context if requested
+        if user_message.strip().lower() in ["forget file", "clear file", "reset file"]:
+            self.last_uploaded_file = None
+            return "Okay, I’ll forget the last file reference."
+
+        # If explicit file is provided
         if file_to_use:
+            self.last_uploaded_file = file_to_use
             llm_input = f"{user_message}\n\n(Note to AI: The user is referring to the file '{file_to_use}'. Please use this file for any data analysis or template generation tasks if relevant.)"
             print(f"Augmented LLM input with explicit file hint: {llm_input}")
+
+        # If last file exists and is mentioned in the query
+        elif self.last_uploaded_file and self.last_uploaded_file in user_message:
+            llm_input = f"{user_message}\n\n(Note to AI: The user is referring to the file '{self.last_uploaded_file}'. Please use this file for any data analysis or template generation tasks if relevant.)"
+            print(f"Augmented LLM input with last known file reference: {llm_input}")
         
         # Invoke the native routing chain and get response
         bot_response = self.router.invoke({"input": llm_input})
