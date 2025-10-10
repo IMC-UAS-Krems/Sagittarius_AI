@@ -1,0 +1,15 @@
+# Flask and Web Server
+flask
+flask_cors
+gunicorn
+werkzeug
+requests
+
+# Langchain Core and OpenAI Integration
+langchain
+langchain-openai
+langchain_core
+
+# Data Handling
+pandas
+openpyxl

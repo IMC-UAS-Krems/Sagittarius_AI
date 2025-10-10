@@ -1,0 +1,26 @@
+[
+  {
+    "id": "urn:ngsi-ld:Patient:12345",
+    "type": "Patient",
+    "name": {
+      "type": "Text",
+      "value": "John Doe"
+    },
+    "age": {
+      "type": "Number",
+      "value": 45
+    },
+    "heartRate": {
+      "type": "Number",
+      "value": 72
+    },
+    "bloodPressure": {
+      "type": "Text",
+      "value": "120/80"
+    },
+    "lastCheckup": {
+      "type": "DateTime",
+      "value": "2025-06-01T09:00:00Z"
+    }
+  }
+]

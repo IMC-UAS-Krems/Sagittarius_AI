@@ -12,7 +12,10 @@ DATA_FOLDER = 'mangodata' # IMPORTANT: If you don't use this, remove it or adjus
 # --- Tool Argument Schemas ---
 class FilePathInput(BaseModel):
     # Updated description to reflect it's a file name within a folder
-    file_path: str = Field(description="The name of the CSV or Excel file (e.g., 'my_data.csv') to be analyzed, assumed to be in the 'mangodata' folder.")
+    file_path: str = Field(description="The name of the CSV or Excel file (e.g., 'my_data.csv') to be analyzed, assumed to be in the 'mangodata' folder.")   
+class ColumnExtractionInput(BaseModel):
+    file_path: str = Field(description="The name of the CSV or Excel file (e.g., 'my_data.csv') assumed to be in the 'mangodata' folder.")
+    column_name: str = Field(description="The name of the single column to extract.")
 
 # --- Tool Classes ---
 
@@ -103,3 +106,42 @@ class DataAnalysisTools:
             return f"Error: File not found at {full_file_path}. Please ensure the file is uploaded and the name is correct."
         except Exception as e:
             return f"An error occurred in extract_column_names for {file_path}: {e}"
+    @tool(args_schema=ColumnExtractionInput)
+    def extract_single_column(file_path: str, column_name: str) -> str:
+        """
+        Extracts a single column from a CSV or Excel file and returns its content.
+        Assumes the file is located in the 'mangodata' folder.
+
+        Args:
+            file_path (str): The name of the CSV or Excel file.
+            column_name (str): The name of the column to extract.
+
+        Returns:
+            str: A string representation of the column data, or an error message.
+        """
+        full_file_path = os.path.join(DATA_FOLDER, file_path)
+        try:
+            # Read the file into a DataFrame
+            if full_file_path.lower().endswith(('.csv', '.txt')):
+                df = pd.read_csv(full_file_path)
+            elif full_file_path.lower().endswith(('.xls', '.xlsx')):
+                df = pd.read_excel(full_file_path)
+            else:
+                return f"Error: Unsupported file format for {file_path}. Please provide a CSV or Excel file."
+            
+            # Check if the column exists
+            df_columns_lower = [col.lower() for col in df.columns]
+            if column_name.lower() not in df_columns_lower:
+                return f"Error: Column '{column_name}' not found in the file '{file_path}'."
+            
+            # Find the original column name with correct casing
+            original_column_name = df.columns[df_columns_lower.index(column_name.lower())]
+
+            # Extract and return the column data using the original name
+            column_data = df[original_column_name].to_json(orient='records')
+            return column_data
+        
+        except FileNotFoundError:
+            return f"Error: File not found at {full_file_path}. Please ensure the file is uploaded and the name is correct."
+        except Exception as e:
+            return f"An error occurred while extracting column '{column_name}' from '{file_path}': {e}"

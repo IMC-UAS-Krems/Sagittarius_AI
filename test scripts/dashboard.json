@@ -1,0 +1,668 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "3d473c69",
+    "title": "Auto-Generated Dashboard",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:LaptopXYZ_ShopA - currency",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:LaptopXYZ_ShopA.currency",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 2,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:LaptopXYZ_ShopA - dateModified",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:LaptopXYZ_ShopA.dateModified",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 3,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:LaptopXYZ_ShopA - name",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:LaptopXYZ_ShopA.name",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 4,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:LaptopXYZ_ShopA - onSale",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:LaptopXYZ_ShopA.onSale",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 5,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:LaptopXYZ_ShopA - price",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:LaptopXYZ_ShopA.price",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 6,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:LaptopXYZ_ShopA - shop",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:LaptopXYZ_ShopA.shop",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 7,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - currency",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.currency",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 8,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - dateModified",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.dateModified",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 32
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 9,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - name",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.name",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 32
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 10,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - onSale",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.onSale",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 40
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 11,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - price",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.price",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 40
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 12,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - salePrice",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.salePrice",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 48
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 13,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:TShirt_ShopB - shop",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:TShirt_ShopB.shop",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 48
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 14,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:EspressoMaker_ShopA - currency",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:EspressoMaker_ShopA.currency",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 56
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 15,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:EspressoMaker_ShopA - dateModified",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:EspressoMaker_ShopA.dateModified",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 56
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 16,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:EspressoMaker_ShopA - name",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:EspressoMaker_ShopA.name",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 64
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 17,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:EspressoMaker_ShopA - onSale",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:EspressoMaker_ShopA.onSale",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 64
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 18,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:EspressoMaker_ShopA - price",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:EspressoMaker_ShopA.price",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 72
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 19,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:EspressoMaker_ShopA - shop",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:EspressoMaker_ShopA.shop",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 72
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 20,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - currency",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.currency",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 80
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 21,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - dateModified",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.dateModified",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 80
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 22,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - name",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.name",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 88
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 23,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - onSale",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.onSale",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 88
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 24,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - price",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.price",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 96
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 25,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - salePrice",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.salePrice",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 96
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      },
+      {
+        "id": 26,
+        "type": "graph",
+        "title": "urn:ngsi-ld:Product:Sneakers_ShopB - shop",
+        "datasource": "Your Datasource Here",
+        "targets": [
+          {
+            "target": "urn:ngsi-ld:Product:Sneakers_ShopB.shop",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 104
+        },
+        "lines": true,
+        "linewidth": 2,
+        "points": true,
+        "pointradius": 2,
+        "legend": {
+          "show": true
+        }
+      }
+    ],
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "5s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+  },
+  "overwrite": true
+}

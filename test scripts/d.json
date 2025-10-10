@@ -1,0 +1,33 @@
+[
+  {
+    "id": "urn:ngsi-ld:BikeStation:Alexanderplatz",
+    "type": "BikeStation",
+    "name": {
+      "type": "Text",
+      "value": "Alexanderplatz Bike Station"
+    },
+    "location": {
+      "type": "geo:json",
+      "value": {
+        "latitude": 52.5219,
+        "longitude": 13.4132
+      }
+    },
+    "availableBikes": {
+      "type": "Number",
+      "value": 12
+    },
+    "totalBikes": {
+      "type": "Number",
+      "value": 30
+    },
+    "status": {
+      "type": "Text",
+      "value": "operational"
+    },
+    "dateModified": {
+      "type": "DateTime",
+      "value": "2025-06-09T15:35:00Z"
+    }
+  }
+]

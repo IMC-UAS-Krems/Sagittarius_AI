@@ -2,7 +2,36 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 import os
+import time
+import requests
+import threading
 from werkzeug.utils import secure_filename # For securing filenames
+
+
+# --- Service Monitoring Setup ---
+SERVICES = {
+    "orion": "http://orion:1026/version", # Use a valid endpoint like /version
+    "grafana": "http://grafana:3000/api/health" # Use the Grafana health API
+}
+
+def check_services():
+    """Continuously checks the health of dependent services."""
+    while True:
+        print("\n--- Running Service Health Check ---")
+        for name, url in SERVICES.items():
+            try:
+                # Use a timeout for the request
+                r = requests.get(url, timeout=5)
+                if r.status_code == 200:
+                    print(f"[OK] {name} is healthy (Status: {r.status_code})")
+                else:
+                    print(f"[WARN] {name} is responding but with status: {r.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"[ERROR] {name} seems to be DOWN. Could not connect to {url}. Error: {e}")
+        
+        # Note: MongoDB is checked via Docker's healthcheck, not here via HTTP.
+        print("--- Health Check Complete ---\n")
+        time.sleep(10) # Check every 10 seconds
 
 # Define the folder to save uploaded files
 UPLOAD_FOLDER = 'mangodata'

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "urn:ngsi-ld:SmartMeter:BuildingA",
+    "type": "SmartMeter",
+    "building": {
+      "type": "Text",
+      "value": "Building A"
+    },
+    "electricityConsumption": {
+      "type": "Number",
+      "value": 125.5
+    },
+    "unit": {
+      "type": "Text",
+      "value": "kWh"
+    },
+    "timestamp": {
+      "type": "DateTime",
+      "value": "2025-06-09T15:40:00Z"
+    },
+    "status": {
+      "type": "Text",
+      "value": "active"
+    }
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "urn:ngsi-ld:AirQualityObserved:Berlin-Center",
+    "type": "AirQualityObserved",
+    "location": {
+      "type": "geo:json",
+      "value": {
+        "latitude": 52.5200,
+        "longitude": 13.4050
+      }
+    },
+    "dateObserved": {
+      "type": "DateTime",
+      "value": "2025-06-09T15:30:00Z"
+    },
+    "airQualityIndex": {
+      "type": "Number",
+      "value": 42
+    },
+    "pm10": {
+      "type": "Number",
+      "value": 18
+    },
+    "pm2_5": {
+      "type": "Number",
+      "value": 12
+    },
+    "source": {
+      "type": "Text",
+      "value": "CityAirSensor01"
+    }
+  }
+]
